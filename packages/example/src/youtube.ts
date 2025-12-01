@@ -1,0 +1,1 @@
+export const youtube = () => "What up Youtube!";

@@ -1,0 +1,14 @@
+{
+    "name": "@repo/example",
+    "exports": {
+        ".": "./dist/index.js",
+        "./youtube": "./dist/youtube.js"
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch --preserveWatchOutput"
+    },
+    "devDependencies": {
+        "@repo/typescript-config": "workspace:*"
+    }
+}
