@@ -7,6 +7,8 @@
   "files": [
     "dist"
   ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     "./styles.css": "./dist/index.css",
     "./*": "./dist/*.js"
