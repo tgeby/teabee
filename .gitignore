@@ -29,8 +29,18 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+.env
+.env.*
+
+
 # turbo
 .turbo
 
 # ui
 dist/
+
+
+.firebase
+.firebaserc
+.pnpm-store
+.pnpmrc
