@@ -9,6 +9,7 @@ function App() {
     <>
       <div className="min-h-screen flex flex-col bg-main-blue-1000">
         <Header />
+        <p>Welcome {auth.user?.displayName || "who are you???"}</p>
       </div>
     </>
   )

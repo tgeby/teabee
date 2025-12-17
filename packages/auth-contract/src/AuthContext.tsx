@@ -1,7 +1,14 @@
 import { createContext, useContext } from "react";
 
+export interface AuthUser {
+    uid: string;
+    displayName?: string | null;
+    email?: string | null;
+    photoURL?: string | null;
+}
+
 export interface AuthState {
-    user: unknown | null;
+    user: AuthUser | null;
     loading: boolean;
     signIn: () => Promise<void>;
     signOut: () => Promise<void>;

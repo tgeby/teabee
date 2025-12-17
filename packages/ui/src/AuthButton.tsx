@@ -7,9 +7,9 @@ export function AuthButton() {
         return <button disabled>Loading...</button>;
     }
 
-    return user ? (
-        <button onClick={() => signOut()}>Sign Out</button>
+    return (user === null) ? (
+        <button className="ui:cursor-pointer"onClick={() => signIn()}>Sign In with Google</button>
     ) : (
-        <button onClick={() => signIn()}>Sign In with Google</button>
+        <button className="ui:cursor-pointer" onClick={() => signOut()}>Sign Out</button>
     );
 }
