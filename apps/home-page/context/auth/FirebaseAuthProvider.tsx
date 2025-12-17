@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AuthContext, AuthUser } from "@repo/auth-contract";
 import { onAuthStateChanged, signInWithRedirect, signInWithPopup, GoogleAuthProvider, signOut, getRedirectResult } from "firebase/auth";
 import { auth } from "lib/firebase";
+import { FirebaseError } from "firebase/app";
 
 export function FirebaseAuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<AuthUser | null>(null);
@@ -44,15 +45,17 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
                 signIn: async () => {
                     const provider = new GoogleAuthProvider();
                     try {
-                        console.log('Attempting sign-in');
-                        if (process.env.NEXT_PUBLIC_DEV === 'true') {
-                            await signInWithPopup(auth, provider);
-                        } else {
-                            await signInWithRedirect(auth, provider);
-                        }
-                        console.log('Sign-in successful');
+                        await signInWithPopup(auth, provider);
                     } catch (error) {
-                        console.error('Error during sign-in:', error);
+                        if (error instanceof FirebaseError) {
+                            console.error('Sign-in error:', error.message);
+
+                            if (error.code === 'auth/popup-blocked') {
+                                await signInWithRedirect(auth, provider);
+                            }
+                        } else {
+                            console.error('Unexpected error during sign-in:', error);
+                        }
                     }
                 },
                 signOut: async () => {
