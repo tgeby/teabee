@@ -1,11 +1,10 @@
 {
     "name": "@repo/auth-contract",
     "version": "0.0.0",
+    "private": true,
     "main": "./dist/AuthContext.js",
     "types": "./dist/AuthContext.d.ts",
-    "exports": {
-        ".": "./dist/AuthContext.js"
-    },
+    "files": ["dist"],
     "scripts": {
         "build": "tsc",
         "dev": "tsc --watch --preserveWatchOutput"
