@@ -45,3 +45,5 @@ dist/
 .pnpm-store
 .pnpmrc
 .npmrc
+.vercel
+.env*.local
