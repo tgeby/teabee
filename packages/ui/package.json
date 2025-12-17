@@ -7,8 +7,6 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     "./styles.css": "./dist/index.css",
     "./*": "./dist/*.js"
@@ -22,12 +20,14 @@
     "dev:components": "tsc --watch",
     "lint": "eslint src --max-warnings 0"
   },
+  "dependencies": {
+    "@repo/auth-contract": "workspace:*"
+  },
   "peerDependencies": {
     "react": "^19",
     "react-dom": "^19"
   },
   "devDependencies": {
-    "@repo/auth-contract": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@repo/tailwind-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
