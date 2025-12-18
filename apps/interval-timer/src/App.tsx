@@ -7,9 +7,12 @@ function App() {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col bg-main-blue-1000">
-        <Header />
-        <p>Welcome {auth.user?.displayName || "who are you???"}</p>
+      <div className="w-full min-h-screen flex flex-col bg-surface-main">
+        <Header/>
+        <main className="w-full flex justify-center items-center">
+          <p>Welcome {auth.user?.displayName || "who are you???"}</p>
+        </main>
+        
       </div>
     </>
   )

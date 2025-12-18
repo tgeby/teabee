@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "@repo/tailwind-config";
 import "@repo/ui/styles.css";
-import { FirebaseAuthProvider } from "context/auth/FirebaseAuthProvider";
+import { FirebaseAuthProvider } from "contexts/auth/FirebaseAuthProvider";
 
 export const metadata: Metadata = {
   title: "Create Next App",

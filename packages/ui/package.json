@@ -21,7 +21,8 @@
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
-    "@repo/auth-contract": "workspace:*"
+    "@repo/auth-contract": "workspace:*",
+    "react-icons": "^5.5.0"
   },
   "peerDependencies": {
     "react": "^19",
