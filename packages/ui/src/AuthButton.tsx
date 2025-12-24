@@ -7,8 +7,6 @@ export function AuthButton() {
     const { user, signIn, signOut, loading } = useAuth();
     const [showProfileImage, setShowProfileImage] = useState(true);
 
-    console.log("photo url: ", user?.photoURL);
-
     if (loading) {
         return (
             <div className="ui:flex ui:items-center ui:justify-center">
