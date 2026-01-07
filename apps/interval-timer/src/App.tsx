@@ -1,20 +1,20 @@
-import { Header } from "@repo/ui/header";
-import { useAuth } from "@repo/auth-contract";
+import Layout from "./components/Layout";
+import { Routes, Route, Navigate } from "react-router-dom";
+import TimerMenu from "./components/timer/TimerMenu";
+import TimerEditor from "./components/timer/TimerEditor";
+import TimerRunner from "./components/timer/TimerRunner";
 
 function App() {
 
-  const auth = useAuth();
-
   return (
-    <>
-      <div className="w-full min-h-screen flex flex-col bg-surface-main">
-        <Header/>
-        <main className="w-full flex justify-center items-center">
-          <p>Welcome {auth.user?.displayName || "who are you???"}</p>
-        </main>
-        
-      </div>
-    </>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Navigate to="/timer/menu" />} />
+        <Route path="timer/menu" element={<TimerMenu />} />
+        <Route path="timer/edit/:id" element={<TimerEditor />} />
+        <Route path="timer/run/:id" element={<TimerRunner />} />
+      </Route>
+    </Routes>
   )
 }
 
