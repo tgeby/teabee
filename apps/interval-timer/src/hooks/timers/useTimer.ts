@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { doc, onSnapshot, DocumentSnapshot, DocumentData } from 'firebase/firestore';
-import { db } from '../../firebase'; 
+import { db } from '@/firebase'; 
 import { useAuth } from "@repo/auth-contract";
-import { IntervalTimer } from '../../components/timer/timer.types';
+import type { IntervalTimer } from '@/components/timer/timer.types';
 
 interface UseTimerResult {
     timer: IntervalTimer | null;

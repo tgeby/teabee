@@ -1,16 +1,30 @@
 import { useNavigate } from "react-router-dom";
-import { IntervalTimer } from "./timer.types";
+import type { IntervalTimer } from "./timer.types";
+import { useTimers } from "@/hooks/timers/useTimers";
 
 const TimerMenu = () => {
 
     const navigate = useNavigate();
-    const timers: IntervalTimer[] = [
+    const { timers, loading, error } = useTimers();
+    const timersMock: IntervalTimer[] = [
         {name: "timer1", intervals: [{duration: 10}, {duration: 5}, {duration: 10}], id: "alskdj"},
         {name: "timer2", intervals: [{duration: 15}, {duration: 5}, {duration: 15}], id: "alskdq"}
     ];
 
+    if (loading) return <p>Loading timers</p>
+
+    if (error) return <p>{error}</p>
+
     return (
-        <div>
+        <div className="w-1/4">
+            <div id="new" className="w-full">
+                <button 
+                    onClick = {() => navigate(`/timer/edit/new`)}
+                    className="cursor-pointer bg-surface-alt w-full rounded-full"
+                >
+                    Create new timer
+                </button>
+            </div>
             {timers.map((timer) => (
                 <div key={timer.id} className="flex gap-2">
                     <p>{timer.name}</p>

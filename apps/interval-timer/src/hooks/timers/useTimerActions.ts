@@ -1,6 +1,6 @@
 import { collection, doc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../firebase'; 
-import { IntervalTimerDoc } from '../../components/timer/timer.types';
+import { db } from '@/firebase'; 
+import type { IntervalTimerDoc } from '@/components/timer/timer.types';
 import { useAuth } from '@repo/auth-contract';
 
 interface UseTimerActionsResult {

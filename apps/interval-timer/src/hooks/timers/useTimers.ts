@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, QuerySnapshot, DocumentData } from 'firebase/firestore';
-import { db } from '../../firebase'; 
-import { IntervalTimer } from '../../components/timer/timer.types';
+import { db } from '@/firebase'; 
+import type { IntervalTimer } from '@/components/timer/timer.types';
 import { useAuth } from "@repo/auth-contract";
 
 
@@ -28,7 +28,7 @@ export const useTimers = (): UseTimersResult => {
         if (!user) {
             setTimers([]);
             setTimersLoading(false);
-            setError("User not authenticated.");
+            setError("Log in to view your saved timers.");
             return;
         }
 
