@@ -10,13 +10,20 @@ interface UseTimerResult {
     error: string | null;
 };
 
-export const useTimer = (timerId: string | null): UseTimerResult => {
+export const useTimer = (timerId: string | null | undefined): UseTimerResult => {
     const { user, loading: authLoading } = useAuth();
     const [timer, setTimer] = useState<IntervalTimer | null>(null);
     const [timerLoading, setTimerLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        if (timerId === undefined) {
+            setTimer(null);
+            setTimerLoading(false);
+            setError(null);
+            return;
+        }
+
         if (authLoading) {
             setTimer(null);
             setTimerLoading(true);
