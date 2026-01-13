@@ -9,25 +9,25 @@ export function AuthButton() {
 
     if (loading) {
         return (
-            <div className="ui:flex ui:items-center ui:justify-center">
-                <div className="ui:animate-spin ui:rounded-full ui:h-8 ui:w-8 ui:border-b-2 ui:border-white"></div>
+            <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
             </div>
         );
     }
 
     return (user === null) ? (
-        <div className="ui:flex ui:items-center ui:justify-center">
-            <button className="ui:flex ui:items-center ui:justify-center ui:cursor-pointer ui:transition-colors ui:hover:opacity-50 ui:size-11 ui:bg-white/10 ui:rounded-full" onClick={() => signIn()}>
-                <FcGoogle className="ui:size-7" />
+        <div className="flex items-center justify-center">
+            <button className="flex items-center justify-center cursor-pointer transition-colors hover:opacity-50 size-11 bg-white/10 rounded-full" onClick={() => signIn()}>
+                <FcGoogle className="size-7" />
             </button>
         </div>
     ) : (
-        <div className="ui:flex ui:justify-center ui:items-center ui:gap-2 ui:sm:gap-3">
+        <div className="flex justify-center items-center gap-2 sm:gap-3">
             {showProfileImage && user.photoURL && (
                 <img
                     src={user.photoURL}
                     alt="Profile"
-                    className="ui:size-8 ui:rounded-full"
+                    className="size-8 rounded-full"
                     onError={() => {
                         console.log("Profile image not found");
                         setShowProfileImage(false);
@@ -35,11 +35,11 @@ export function AuthButton() {
                 />
             )}
             <button 
-                className="ui:flex ui:size-11 ui:cursor-pointer ui:items-center ui:justify-center ui:leading-none ui:rounded-full ui:hover:opacity-50 ui:bg-white/10 ui:transition-opacity" 
+                className="flex size-11 cursor-pointer items-center justify-center leading-none rounded-full hover:opacity-50 bg-white/10 transition-opacity" 
                 onClick={() => signOut()}
             >
-                <LuLogOut className="ui:size-7" />
-                <span className="ui:sr-only">Sign Out</span>
+                <LuLogOut className="size-7" />
+                <span className="sr-only">Sign Out</span>
             </button>
         </div>
     );

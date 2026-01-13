@@ -25,25 +25,25 @@ export function Header({ isHomePage } : { isHomePage?: boolean }) {
   });
 
   return (
-    <header className="ui:grid ui:grid-cols-3 ui:items-center ui:px-4 ui:bg-brand-primary 
-                      ui:w-full ui:min-h-16 ui:shadow-black/50 ui:shadow-lg ui:mb-4 ui:sticky 
-                      ui:top-0 ui:z-50 ui:text-text-bright">
-      <div className="ui:flex ui:justify-center ui:items-center">
+    <header className="grid grid-cols-3 items-center px-4 bg-brand-primary 
+                      w-dvw min-h-16 shadow-black/50 shadow-lg mb-4 sticky 
+                      top-0 z-50 text-text-bright">
+      <div className="flex justify-center items-center">
         {isHomePage ? (
-          <div className="ui:flex ui:justify-center ui:items-center ui:size-11">
-            <LuHouse className="ui:size-7" />
+          <div className="flex justify-center items-center size-11">
+            <LuHouse className="size-7" />
           </div>
         ) : (
           <a 
             href="https://teabee.org"
-            className="ui:flex ui:justify-center ui:items-center ui:size-11 ui:hover:opacity-50 ui:bg-white/10 ui:rounded-full ui:transition-opacity"
+            className="flex justify-center items-center size-11 hover:opacity-50 bg-white/10 rounded-full transition-opacity"
           >
-            <LuHouse className="ui:size-7" />
+            <LuHouse className="size-7" />
           </a>
         )}
       </div>
       
-      <h1 id="title" className="ui:text-3xl ui:text-center ui:font-bold ui:mb-1">TeaBee</h1>
+      <h1 id="title" className="text-3xl text-center font-bold mb-1">TeaBee</h1>
       <AuthButton />
 
     </header>
