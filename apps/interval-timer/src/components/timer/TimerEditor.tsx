@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import type { Interval } from "./timer.types";
-import { useTimer } from "@/hooks/timers/useTimer";
-import { useTimerActions } from "@/hooks/timers/useTimerActions";
+import { useTimer } from "@/hooks/timer/useTimer";
+import { useTimerActions } from "@/hooks/timer/useTimerActions";
 
 const normalizeDuration = (h: number, m: number, s: number) => {
     m += Math.floor(s / 60);

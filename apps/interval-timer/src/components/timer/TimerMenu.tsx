@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import type { IntervalTimer } from "./timer.types";
-import { useTimers } from "@/hooks/timers/useTimers";
+import { useTimers } from "@/hooks/timer/useTimers";
 
 const TimerMenu = () => {
 
