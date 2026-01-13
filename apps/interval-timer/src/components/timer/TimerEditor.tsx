@@ -82,6 +82,18 @@ const TimerEditor = () => {
         setName(value);
     }
 
+    const handleDurationFocus = (
+        event: React.FocusEvent<HTMLInputElement>
+    ) => {
+        event.target.select();
+
+        document.body.style.overflow = "hidden";
+    };
+
+    const handleDurationBlur = () => {
+        document.body.style.overflow = "";
+    };
+
     const handleDurationChange = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -92,6 +104,29 @@ const TimerEditor = () => {
             [field]: value === "" ? 0 : Number(value),
         }));
     };
+
+    const handleEnterToNext = (
+        e: React.KeyboardEvent<HTMLInputElement>
+    ) => {
+        if (e.key !== "Enter") return;
+
+        e.preventDefault(); 
+
+        const form = e.currentTarget.form;
+        if (!form) return;
+
+        const elements = Array.from(
+            form.querySelectorAll<HTMLInputElement>(
+                'input, button, select, textarea'
+                )
+        ).filter(el => !el.disabled && el.type !== "hidden");
+
+        const index = elements.indexOf(e.currentTarget);
+        const next = elements[index + 1];
+
+        next?.focus();
+    };
+
 
     const handleAddInterval = () => {
 
@@ -156,28 +191,28 @@ const TimerEditor = () => {
     }
 
     return (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-4 text-lg sm:text-2xl font-medium p-4">
             {error && <p>{error}</p>}
-            <form onSubmit={handleSubmit} className="w-full flex flex-col gap-2">
-                <div className="w-full flex flex-col justify-center items-center gap-2 bg-brand-primary rounded-lg p-4 text-text-bright"> {/*input area*/}
-                    <h1 className="text-center w-full text-xl" id="form-title">Timer Editor</h1>
+            <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
+                <div className="w-full flex flex-col justify-center items-center gap-4 bg-brand-primary rounded-lg p-4 text-text-bright"> {/*input area*/}
+                    <h1 className="text-center w-full text-2xl sm:text-3xl" id="form-title">Timer Editor</h1>
 
-                    <label className="flex flex-col items-center">
-                        <p>Timer Name</p>
+                    <label className="flex gap-2">
+                        Name:
                         <input 
                             type="text"
                             name="timer-name"
                             value={name}
                             onChange={handleNameChange}
-                            className="bg-surface-alt p-2 rounded-sm h-8"
+                            className="bg-surface-alt p-2 rounded-sm h-8 w-full"
+                            onKeyDown={handleEnterToNext}
                         />
                     </label>
 
-                    <fieldset>
-                        <legend className="sr-only">Duration</legend>
-
-                        <div className="flex flex-col items-left gap-2">
-                            <p className="text-center">Duration</p>
+                    <p className="text-center" id="interval-label">Current Interval</p>
+                    <fieldset aria-labelledby="interval-label">
+                        <legend className="sr-only">Current Interval Input Area</legend>
+                        <div className="flex gap-1 flex-row items-center">
                             <label className="flex items-center gap-1">
                                 <input 
                                     type="number"
@@ -185,10 +220,15 @@ const TimerEditor = () => {
                                     min="0"
                                     max="23"
                                     step="1"
+                                    inputMode="numeric"
+                                    onFocus={handleDurationFocus}
+                                    onBlur={handleDurationBlur}
                                     value={currentInterval.h}
                                     onChange={handleDurationChange}
-                                    className="bg-surface-alt p-2 rounded-sm w-14 h-8"
-                                /> hours
+                                    className={`bg-surface-alt rounded-sm w-10 h-8 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:cursor-ns-resize`}
+                                    onKeyDown={handleEnterToNext}
+                                />
+                                <span className="flex items-center pb-1 text-text-bright self-center">:</span>
                             </label>
 
                             <label className="flex items-center gap-1">
@@ -198,10 +238,15 @@ const TimerEditor = () => {
                                     min="0"
                                     max="59"
                                     step="1"
+                                    inputMode="numeric"
+                                    onFocus={handleDurationFocus}
+                                    onBlur={handleDurationBlur}
                                     value={currentInterval.m}
                                     onChange={handleDurationChange}
-                                    className="bg-surface-alt p-2 rounded-sm w-14 h-8"
-                                /> minutes
+                                    className={`bg-surface-alt rounded-sm w-10 h-8 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:cursor-ns-resize`}
+                                    onKeyDown={handleEnterToNext}
+                                />
+                                <span className="flex items-center pb-1 text-text-bright self-center">:</span>
                             </label>
 
                             <label className="flex items-center gap-1">
@@ -211,63 +256,72 @@ const TimerEditor = () => {
                                     min="0"
                                     max="59"
                                     step="1"
+                                    inputMode="numeric"
+                                    onFocus={handleDurationFocus}
+                                    onBlur={handleDurationBlur}
                                     value={currentInterval.s}
                                     onChange={handleDurationChange}
-                                    className="bg-surface-alt p-2 rounded-sm w-14 h-8"
-                                /> seconds
+                                    className={`bg-surface-alt rounded-sm w-10 h-8 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:cursor-ns-resize`}
+                                    onKeyDown={handleEnterToNext}
+                                />
+                                <div className="w-[2px] h-6 bg-text-bright mx-1 self-center" aria-hidden="true" />
                             </label>
+
+                            <button 
+                                type="button"
+                                className={"rounded-md transition-colors cursor-pointer px-3 flex items-center gap-2 bg-surface-alt text-text-bright btn-glow h-8"}
+                                onClick={() => setCurrentInterval(prev => ({ ...prev, isRest: !prev.isRest }))}
+                            >
+                                <span className={`w-2 h-2 rounded-full ${currentInterval.isRest ? "bg-white" : "bg-black/20"}`}></span>
+
+                                Rest
+                            </button>
                         </div>
                     </fieldset>
-
-                    <label className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            checked={currentInterval.isRest || false}
-                            onChange={(e) =>
-                                setCurrentInterval(prev => ({ ...prev, isRest: e.target.checked }))
-                            }
-                            className="w-4 h-4"
-                        />
-                        Rest Interval
-                    </label>
 
 
                     <button 
                         name="add-current-interval-to-list"
                         disabled={isAddDisabled}
                         onClick={handleAddInterval}
-                        className="bg-white/10 cursor-pointer disabled:cursor-not-allowed rounded-md p-1 enabled:hover:bg-white/20 font-bold h-11 px-4"
+                        className="bg-surface-alt cursor-pointer disabled:cursor-not-allowed rounded-md p-1 btn-glow font-bold px-4"
                     >
                         <span className="text-text-light">Add Interval</span>
                     </button>
                 </div>
+                
+                <div className="flex flex-col bg-brand-primary text-text-bright rounded-md">
+                    <p className="text-2xl sm:text-3xl text-center bg-surface-alt rounded-t-md">Current Intervals</p>
+                    {intervals.length === 0 && 
+                        <p className="text-center text-sm">None</p>
+                    }
+                    <ul className="flex flex-col items-left gap-2 p-2 max-h-[150px] overflow-y-auto custom-scrollbar">
+                        {intervals.map((interval, index) => (
+                            <li id={`${index}`} key={`${index}`} className="grid grid-cols-4 place-items-center">
+                                <button
+                                    className="bg-surface-alt size-8 rounded-full cursor-pointer text-center font-bold btn-glow"
+                                    onClick={() => handleDeleteInterval(index)}
+                                >
+                                    X
+                                </button>
+
+                                <p className="col-span-2">{`${index+1}) ${interval.h.toString().padStart(2, "0")}:${interval.m.toString().padStart(2, "0")}:${interval.s.toString().padStart(2, "0")}`}</p>
+                                {interval.isRest === true && <p className="bg-white/10 rounded-md px-2">Rest</p>}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
 
                 <button 
-                    className="bg-brand-primary py-4 rounded-md text-text-bright text-xl cursor-pointer disabled:cursor-not-allowed w-full hover:bg-brand-primary/90"
+                    className="bg-surface-alt border-16 border-brand-primary py-2 rounded-md text-text-bright text-2xl sm:text-3xl cursor-pointer disabled:cursor-not-allowed w-full enabled:hover:bg-surface-alt/80 flex flex-col gap-2 font-bold shadow-xl hover:brightness-90 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                     disabled={intervals.length === 0}
                     type="submit"
                 >
                     Submit Timer
+                    {intervals.length === 0 && <p className="text-sm font-medium">Add intervals above to submit</p>}
                 </button>
                 
             </form>
-
-            <ul className="flex flex-col items-left gap-2 bg-brand-primary rounded-md text-text-bright p-2">
-                <p className="text-lg text-center">Current Intervals</p>
-                {intervals.map((interval, index) => (
-                    <li id={`${index}`} key={`${crypto.randomUUID()}`} className="grid grid-cols-4 place-items-center">
-                        <button
-                            className="bg-white/10 size-8 rounded-full cursor-pointer text-center font-bold hover:bg-white/20"
-                            onClick={() => handleDeleteInterval(index)}
-                        >
-                            X
-                        </button>
-
-                        <p className="col-span-2">{`${index+1}) ${interval.h.toString().padStart(2, "0")}:${interval.m.toString().padStart(2, "0")}:${interval.s.toString().padStart(2, "0")}`}</p>
-                        {interval.isRest === true && <p>Rest</p>}
-                    </li>
-                ))}
-            </ul>
         </div>
     );
 };
