@@ -16,7 +16,7 @@ export function Header({ isHomePage } : { isHomePage?: boolean }) {
 
     gsap.from(titleChars.chars, {
       opacity: 0,
-      y: 10,
+      y: 5,
       stagger: 0.09,
       duration: 0.1,
       ease: "power2.out",
@@ -43,7 +43,7 @@ export function Header({ isHomePage } : { isHomePage?: boolean }) {
         )}
       </div>
       
-      <h1 id="title" className="text-3xl text-center font-bold mb-1">TeaBee</h1>
+      <h1 id="title" className="text-2xl sm:text-3xl text-center font-bold mb-1">TeaBee</h1>
       <AuthButton />
 
     </header>
