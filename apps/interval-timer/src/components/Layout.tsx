@@ -11,7 +11,6 @@ export default function Layout() {
         <div className="w-full min-h-screen flex flex-col bg-surface-main">
         <Header/>
         <main className="w-full flex flex-col justify-center items-center">
-            <p>Welcome {auth.user?.displayName || "who are you???"}</p>
             <Outlet />
         </main>
       </div>
