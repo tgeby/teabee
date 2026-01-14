@@ -1,8 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
-import { IntervalTimer } from "./timer.types";
 import { useTimer } from "@/hooks/timer/useTimer";
-import { msToHoursMinutesSeconds, secondsToHoursMinutesSeconds } from "@/hooks/timer/useIntervalConversions";
+import { msToHoursMinutesSeconds } from "@/hooks/timer/useIntervalConversions";
 
 type TimerStatus = "idle" | "running" | "paused";
 
@@ -16,6 +15,7 @@ const TimerRunner = () => {
     const startTimeRefMilliseconds = useRef<number | null>(null);
     const [timeRemainingMilliseconds, setTimeRemainingMilliseconds] = useState<number | null>(null);
     const intervalRef = useRef<number | null>(null);
+    const audioRef = useRef(new Audio("/notificationSound.mp3"));
 
     useEffect(() => {
         if (status !== "running") return;
@@ -29,6 +29,7 @@ const TimerRunner = () => {
             setTimeRemainingMilliseconds(remainingMs);
 
             if (remainingMs === 0) {
+                playAudio();
                 advanceInterval();
             }
         }
@@ -54,7 +55,6 @@ const TimerRunner = () => {
         const nextIndex = timerIndexRef.current + 1;
 
         if (!timer || nextIndex >= timer.intervals.length) {
-            console.log("Timer completed! Good job.");
             setStatus("idle");
             setTimeRemainingMilliseconds(null);
             currentDurationRefMilliseconds.current = null;
@@ -62,7 +62,6 @@ const TimerRunner = () => {
             return;
         }
 
-        console.log(`Interval ${timerIndexRef.current} completed!`);
         timerIndexRef.current = nextIndex;
         setTimerIndex(nextIndex);
         
@@ -77,7 +76,32 @@ const TimerRunner = () => {
     if (loading) return <p className="loading">Loading timer...</p>;
     if (error || !timer) return <p className="error">Timer not found</p>;
 
+    const playAudio = async () => {
+        if (audioRef.current) {
+            try {
+                // Reset to start before playing in case it was played before
+                audioRef.current.currentTime = 0; 
+                await audioRef.current.play();
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.error("Playback failed during timer tick:", error.message);
+                }
+            }
+    }
+    };
+
     const handleStart = () => {
+        if (audioRef.current) {
+            audioRef.current.play().then(() => {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }).catch((error) => {
+                if (error instanceof Error) {
+                    console.error("Audio failed to unlock");
+                }
+            });
+        }
+
         if (timer && timer.intervals[0]?.duration) {
             timerIndexRef.current = 0;
             setTimerIndex(0);
