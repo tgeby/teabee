@@ -3,16 +3,7 @@ import { useState, useEffect } from "react";
 import type { Interval } from "./timer.types";
 import { useTimer } from "@/hooks/timer/useTimer";
 import { useTimerActions } from "@/hooks/timer/useTimerActions";
-
-const normalizeDuration = (h: number, m: number, s: number) => {
-    m += Math.floor(s / 60);
-    s %= 60;
-
-    h += Math.floor(m / 60);
-    m %= 60;
-
-    return { h, m, s };
-}
+import { normalizeDuration, secondsToHoursMinutesSeconds, formIntervalToSeconds } from "@/hooks/timer/intervalConversions";
 
 interface FormInterval {
     h: number;
@@ -20,19 +11,6 @@ interface FormInterval {
     s: number;
     isRest?: boolean;
 }
-
-const formIntervalToSeconds = (interval: FormInterval): number => {
-    const { h, m, s } = interval;
-    return h * 3600 + m * 60 + s;
-};
-
-const secondsToFormIntervalDuration = (totalSeconds: number): FormInterval => {
-    const t = Math.max(0, Math.floor(totalSeconds));
-    const h = Math.floor(t / 3600);
-    const m = Math.floor((t % 3600) / 60);
-    const s = t % 60;
-    return { h, m, s };
-};
 
 const TimerEditor = () => {
 
@@ -66,7 +44,7 @@ const TimerEditor = () => {
             setName(timer.name);
 
             const formIntervals: FormInterval[] = timer.intervals.map((interval) => ({
-                ...secondsToFormIntervalDuration(interval.duration),
+                ...secondsToHoursMinutesSeconds(interval.duration),
                 isRest: interval.isRest,
             }));
 
