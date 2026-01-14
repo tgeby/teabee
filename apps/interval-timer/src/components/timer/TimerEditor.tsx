@@ -179,15 +179,15 @@ const TimerEditor = () => {
     };
 
     if (!isNew && loading) {
-        return <p>Loading timer…</p>;
+        return <p className="loading">Loading timer…</p>;
     }
 
     if (!isNew && useTimerError) {
-        return <p>Failed to load timer.</p>;
+        return <p className="error">Failed to load timer.</p>;
     }
 
     if (!isNew && !timer) {
-        return <p>Timer not found.</p>;
+        return <p className="error">Timer not found.</p>;
     }
 
     return (

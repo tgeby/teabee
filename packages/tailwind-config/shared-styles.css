@@ -18,6 +18,14 @@
   @apply overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-surface-alt [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-surface-alt/80
 }
 
+.loading {
+  @apply text-2xl text-text-bright text-center mt-8 font-medium bg-surface-alt rounded-md p-2
+}
+
+.error {
+  @apply text-4xl text-red-900 text-center mt-8 font-extrabold bg-surface-alt rounded-md p-2
+}
+
 body {
   background-color: var(--color-surface-main);
 }

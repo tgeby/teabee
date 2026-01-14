@@ -11,9 +11,9 @@ const TimerMenu = () => {
         {name: "timer2", intervals: [{duration: 15}, {duration: 5}, {duration: 15}], id: "alskdq"}
     ];
 
-    if (loading) return <p>Loading timers</p>
+    if (loading) return <p className="loading">Loading timers</p>
 
-    if (error) return <p>{error}</p>
+    if (error) return <p className="error">{error}</p>
 
     return (
         <div className="mt-4 max-w-3/4 sm:max-w-3/4 bg-brand-primary p-4 rounded-md flex flex-col justify-center gap-4 text-lg sm:text-2xl text-text-bright font-medium">
