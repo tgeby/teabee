@@ -1,4 +1,4 @@
-interface FormInterval {
+export interface FormInterval {
     h: number;
     m: number;
     s: number;
@@ -25,5 +25,13 @@ export const secondsToHoursMinutesSeconds = (totalSeconds: number): FormInterval
     const h = Math.floor(t / 3600);
     const m = Math.floor((t % 3600) / 60);
     const s = t % 60;
+    return { h, m, s };
+};
+
+export const msToHoursMinutesSeconds = (ms: number) => {
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
     return { h, m, s };
 };
