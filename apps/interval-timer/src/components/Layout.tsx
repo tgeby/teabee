@@ -1,4 +1,4 @@
-import { Header } from "@repo/ui/header";
+import { Header } from "@repo/ui";
 import { useAuth } from "@repo/auth-contract";
 import { Outlet } from "react-router-dom";
 

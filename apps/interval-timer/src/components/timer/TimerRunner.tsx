@@ -21,7 +21,7 @@ const TimerRunner = () => {
 
     return (
         <>
-            <h2 className="text-4xl font-bold mb-4 text-text-bright line-clamp-2 whitespace-normal max-w-1/2 text-center">{timer.name}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-text-bright line-clamp-2 whitespace-normal max-w-1/2 text-center text-ellipsis">{timer.name}</h2>
             <div className="flex flex-col items-center gap-4 font-medium text-text-bright bg-brand-primary p-6 rounded-lg">
                 {status === "idle" && (
                     <button 
