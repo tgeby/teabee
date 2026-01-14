@@ -191,7 +191,7 @@ const TimerEditor = () => {
     }
 
     return (
-        <div className="flex flex-col gap-4 text-lg sm:text-2xl font-medium p-4">
+        <div className="flex flex-col max-w-[500px] gap-4 text-lg sm:text-2xl font-medium p-4">
             {error && <p>{error}</p>}
             <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
                 <div className="w-full flex flex-col justify-center items-center gap-4 bg-brand-primary rounded-lg p-4 text-text-bright"> {/*input area*/}
