@@ -10,8 +10,8 @@
   --breakpoint-xs: 30rem;
 }
 
-.btn-glow {
-  @apply shadow-xl enabled:hover:brightness-90 enabled:hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-[0.97] transition-all duration-100
+.btn-glow:not(:disabled) {
+  @apply shadow-xl enabled:hover:brightness-90 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] scale-[0.97] transition-all duration-100
 }
 
 .custom-scrollbar {
