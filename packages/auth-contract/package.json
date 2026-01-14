@@ -5,6 +5,12 @@
     "main": "./dist/AuthContext.js",
     "types": "./dist/AuthContext.d.ts",
     "files": ["dist"],
+    "exports": {
+        ".": {
+            "types": "./dist/AuthContext.d.ts",
+            "default": "./dist/AuthContext.js"
+        }
+    },
     "scripts": {
         "build": "tsc",
         "dev": "tsc --watch --preserveWatchOutput"

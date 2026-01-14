@@ -26,7 +26,7 @@ export function Header({ isHomePage } : { isHomePage?: boolean }) {
 
   return (
     <header className="grid grid-cols-3 items-center px-4 bg-brand-primary 
-                      w-dvw min-h-16 shadow-black/50 shadow-lg mb-4 sticky 
+                      w-dvw min-h-16 shadow-black/50 shadow-lg sticky 
                       top-0 z-50 text-text-bright">
       <div className="flex justify-center items-center">
         {isHomePage ? (

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { useAuth } from "@repo/auth-contract";
 import { LuLogOut } from "react-icons/lu";

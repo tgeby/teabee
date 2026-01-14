@@ -4,15 +4,19 @@
   "sideEffects": [
     "**/*.css"
   ],
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "exports": {
-    "./styles.css": "./dist/index.css",
-    "./*": "./dist/*.js"
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+    "./styles.css": "./dist/index.css"
   },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "license": "MIT",
   "scripts": {
+    "build": "pnpm build:styles && pnpm build:components",
     "build:styles": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
     "build:components": "tsc",
     "check-types": "tsc --noEmit",
