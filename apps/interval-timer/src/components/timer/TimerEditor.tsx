@@ -3,14 +3,8 @@ import { useState, useEffect } from "react";
 import type { Interval } from "./timer.types";
 import { useTimer } from "@/hooks/timer/useTimer";
 import { useTimerActions } from "@/hooks/timer/useTimerActions";
-import { normalizeDuration, secondsToHoursMinutesSeconds, formIntervalToSeconds } from "@/hooks/timer/intervalConversions";
-
-interface FormInterval {
-    h: number;
-    m: number;
-    s: number;
-    isRest?: boolean;
-}
+import { normalizeDuration, secondsToHoursMinutesSeconds, formIntervalToSeconds } from "@/hooks/timer/useIntervalConversions";
+import type { FormInterval } from "@/hooks/timer/useIntervalConversions";
 
 const TimerEditor = () => {
 
