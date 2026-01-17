@@ -22,7 +22,7 @@ const TimerEditor = () => {
         isRest: false,
     });
 
-    const { addTimer, updateTimer } = useTimerActions();
+    const { addTimer, updateTimer, deleteTimer } = useTimerActions();
 
     const navigate = useNavigate();
 
@@ -150,6 +150,13 @@ const TimerEditor = () => {
         }
     };
 
+    const handleDeleteTimer = async() => {
+        if (window.confirm("Are you sure you want to delete this timer?") && id != undefined) {
+            await deleteTimer(id);
+            navigate("/timer/menu");
+        }
+    };
+
     if (!isNew && loading) {
         return <p className="loading">Loading timer…</p>;
     }
@@ -263,8 +270,8 @@ const TimerEditor = () => {
                 </div>
                 
                 <button 
-                    className="bg-surface-alt border-16 border-brand-primary py-2 rounded-md text-text-bright text-2xl sm:text-3xl cursor-pointer disabled:cursor-not-allowed w-full enabled:hover:bg-surface-alt/80 flex flex-col gap-2 font-bold shadow-xl hover:brightness-90 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-                    disabled={intervals.length === 0}
+                    className="bg-surface-alt border-16 border-brand-primary py-2 rounded-md text-text-bright text-2xl sm:text-3xl cursor-pointer disabled:cursor-not-allowed w-full flex flex-col gap-2 font-bold btn-glow"
+                    disabled={intervals.length === 0 || name.length < 1}
                     type="submit"
                 >
                     Submit Timer
@@ -276,7 +283,7 @@ const TimerEditor = () => {
                     {intervals.length === 0 && 
                         <p className="text-center text-sm">None</p>
                     }
-                    <ul className="flex flex-col items-left gap-2 p-2 max-h-[150px] overflow-y-auto custom-scrollbar">
+                    <ul className="flex flex-col items-left gap-2 p-2 h-[200px] overflow-y-auto custom-scrollbar">
                         {intervals.map((interval, index) => (
                             <li id={`${index}`} key={`${index}`} className="grid grid-cols-4 place-items-center">
                                 <button
@@ -294,6 +301,14 @@ const TimerEditor = () => {
                     </ul>
                 </div>
                 
+                <button
+                    className="bg-red-900 py-2 rounded-md text-text-bright text-2xl sm:text-3xl cursor-pointer disabled:cursor-not-allowed w-full flex flex-col gap-2 font-bold btn-glow"
+                    onClick={handleDeleteTimer}
+                    type="button"
+                    disabled={id === undefined || id === "new"}
+                >
+                    Delete Timer
+                </button>
             </form>
         </div>
     );
