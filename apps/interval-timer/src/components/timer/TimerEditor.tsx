@@ -262,6 +262,15 @@ const TimerEditor = () => {
                     </button>
                 </div>
                 
+                <button 
+                    className="bg-surface-alt border-16 border-brand-primary py-2 rounded-md text-text-bright text-2xl sm:text-3xl cursor-pointer disabled:cursor-not-allowed w-full enabled:hover:bg-surface-alt/80 flex flex-col gap-2 font-bold shadow-xl hover:brightness-90 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                    disabled={intervals.length === 0}
+                    type="submit"
+                >
+                    Submit Timer
+                    {intervals.length === 0 && <p className="text-sm font-medium">Add intervals above to submit</p>}
+                </button>
+
                 <div className="flex flex-col bg-brand-primary text-text-bright rounded-md">
                     <p className="text-2xl sm:text-3xl text-center bg-surface-alt rounded-t-md">Current Intervals</p>
                     {intervals.length === 0 && 
@@ -273,6 +282,7 @@ const TimerEditor = () => {
                                 <button
                                     className="bg-surface-alt size-8 rounded-full cursor-pointer text-center font-bold btn-glow"
                                     onClick={() => handleDeleteInterval(index)}
+                                    type="button"
                                 >
                                     X
                                 </button>
@@ -283,15 +293,6 @@ const TimerEditor = () => {
                         ))}
                     </ul>
                 </div>
-
-                <button 
-                    className="bg-surface-alt border-16 border-brand-primary py-2 rounded-md text-text-bright text-2xl sm:text-3xl cursor-pointer disabled:cursor-not-allowed w-full enabled:hover:bg-surface-alt/80 flex flex-col gap-2 font-bold shadow-xl hover:brightness-90 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-                    disabled={intervals.length === 0}
-                    type="submit"
-                >
-                    Submit Timer
-                    {intervals.length === 0 && <p className="text-sm font-medium">Add intervals above to submit</p>}
-                </button>
                 
             </form>
         </div>
