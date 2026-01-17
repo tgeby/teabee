@@ -15,7 +15,7 @@ const TimerRunner = () => {
     const startTimeRefMilliseconds = useRef<number | null>(null);
     const [timeRemainingMilliseconds, setTimeRemainingMilliseconds] = useState<number | null>(null);
     const intervalRef = useRef<number | null>(null);
-    const audioRef = useRef(new Audio("/notificationSound.mp3"));
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
         if (status !== "running") return;
@@ -36,14 +36,8 @@ const TimerRunner = () => {
 
         tick();
         intervalRef.current = window.setInterval(tick, 200);
-        
-        const timeout = setTimeout(() => {
-            tick();
-            
-        }, 1000 - (Date.now() % 1000));
 
         return () => {
-            clearTimeout(timeout);
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
@@ -55,10 +49,7 @@ const TimerRunner = () => {
         const nextIndex = timerIndexRef.current + 1;
 
         if (!timer || nextIndex >= timer.intervals.length) {
-            setStatus("idle");
-            setTimeRemainingMilliseconds(null);
-            currentDurationRefMilliseconds.current = null;
-            startTimeRefMilliseconds.current = null;
+            handleReset();
             return;
         }
 
@@ -67,6 +58,7 @@ const TimerRunner = () => {
         
         const nextDuration = timer.intervals[nextIndex]?.duration;
         if (!nextDuration) return;
+
         const nextDurationMs = nextDuration * 1000;
         currentDurationRefMilliseconds.current = nextDurationMs;
         startTimeRefMilliseconds.current = Date.now();
@@ -77,31 +69,31 @@ const TimerRunner = () => {
     if (error || !timer) return <p className="error">Timer not found</p>;
 
     const playAudio = async () => {
-        if (audioRef.current) {
-            try {
-                // Reset to start before playing in case it was played before
-                audioRef.current.currentTime = 0; 
-                await audioRef.current.play();
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    console.error("Playback failed during timer tick:", error.message);
-                }
-            }
-    }
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        audio.currentTime = 0;
+        audio.muted = false;
+        audio.play().catch((e) => console.error("Audio playback failed:", e));
     };
 
-    const handleStart = () => {
-        if (audioRef.current) {
-            audioRef.current.play().then(() => {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            }).catch((error) => {
-                if (error instanceof Error) {
-                    console.error("Audio failed to unlock");
-                }
-            });
+    const initAndUnlockAudio = async () => {
+        
+        if (!audioRef.current) {
+            audioRef.current = new Audio("/notificationSoundTrimmed.m4a");
+            audioRef.current.load();
         }
 
+        const audio = audioRef.current;
+        audio.muted = true;
+        audio.play().then(() => {
+            audio.pause();
+            audio.currentTime = 0;
+        }).catch(e => console.error("Audio unlock failed:", e));
+    };
+
+    const handleStart = async () => {
+        await initAndUnlockAudio();
         if (timer && timer.intervals[0]?.duration) {
             timerIndexRef.current = 0;
             setTimerIndex(0);
@@ -114,9 +106,9 @@ const TimerRunner = () => {
         }
     };
 
-    const handlePlay = () => {
+    const handlePlay = async () => {
         if (currentDurationRefMilliseconds.current === null || status !== "paused") return; // Should add some error handling here
-        
+        await initAndUnlockAudio();
         setStatus("running");
         setTimeRemainingMilliseconds(currentDurationRefMilliseconds.current);
         startTimeRefMilliseconds.current = Date.now();
