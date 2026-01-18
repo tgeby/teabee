@@ -55,6 +55,13 @@ export const useTimer = (timerId: string | null | undefined, refreshKey?: number
             }
         }
 
+        if (timerId === "new") { // No draft and new
+            setTimer(null);
+            setTimerLoading(false);
+            setError(null);
+            return;
+        }
+
         if (authLoading) {
             setTimer(null);
             setTimerLoading(true);

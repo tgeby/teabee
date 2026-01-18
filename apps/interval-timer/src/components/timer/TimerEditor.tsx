@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import type { Interval, IntervalTimer } from "./timer.types";
+import type { Interval, IntervalTimer, IntervalTimerDoc } from "./timer.types";
 import { useTimer } from "@/hooks/timer/useTimer";
 import { useTimerActions } from "@/hooks/timer/useTimerActions";
 import { normalizeDuration, secondsToHoursMinutesSeconds, formIntervalToSeconds } from "@/hooks/timer/useIntervalConversions";
@@ -13,6 +13,7 @@ const TimerEditor = () => {
     const isNew = id === "new" || id === undefined;
 
     const [refreshKey, setRefreshKey] = useState(0);
+    const [hasDraft, setHasDraft] = useState(false);
     const [name, setName] = useState("");
     const [intervals, setIntervals] = useState<FormInterval[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -25,7 +26,7 @@ const TimerEditor = () => {
 
     const { addTimer, updateTimer, deleteTimer } = useTimerActions();
     const navigate = useNavigate();
-    const { timer, loading, error: useTimerError } = useTimer(isNew ? undefined : id, refreshKey);
+    const { timer, loading, error: useTimerError } = useTimer(id, refreshKey);
 
     const isAddDisabled = 
         currentInterval.h === 0 &&
@@ -33,6 +34,12 @@ const TimerEditor = () => {
         currentInterval.s === 0;
 
     const storageKey = `timer-state:${id}`;
+
+    useEffect(() => {
+        if (localStorage.getItem(storageKey) !== null) {
+            setHasDraft(true);
+        }
+    }, [storageKey])
 
     // Convert the fetched intervals from duration in seconds to hours, minutes, and seconds to work with
     // in the form.
@@ -46,6 +53,9 @@ const TimerEditor = () => {
             }));
 
             setIntervals(formIntervals);
+        } else {
+            setName("");
+            setIntervals([]);
         }
     }, [timer]);
 
@@ -122,7 +132,7 @@ const TimerEditor = () => {
             timer: timerState,
             timestamp: Date.now()
         };
-
+        setHasDraft(true);
         localStorage.setItem(storageKey, JSON.stringify(state));
     };
 
@@ -168,7 +178,7 @@ const TimerEditor = () => {
             isRest: interval.isRest,
         }));
 
-        const payload = { name, intervals: reformattedIntervals };
+        const payload: IntervalTimerDoc = { name, intervals: reformattedIntervals };
 
         try {
             if (isNew) {
@@ -187,6 +197,7 @@ const TimerEditor = () => {
     const handleClearDraft = () => {
         localStorage.removeItem(storageKey);
         setRefreshKey(prev => prev + 1);
+        setHasDraft(false);
     };
 
     const handleDeleteTimer = async() => {
@@ -312,7 +323,7 @@ const TimerEditor = () => {
                         onClick={handleClearDraft}
                         className="bg-red-900 cursor-pointer disabled:bg-gray-700 disabled:cursor-not-allowed rounded-md p-1 btn-glow font-bold px-4"
                         type="button"
-                        disabled={localStorage.getItem(storageKey) === null}
+                        disabled={!hasDraft}
                     >
                         Clear Draft
                     </button>
