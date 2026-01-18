@@ -8,7 +8,7 @@ import { SplitText } from "gsap/all";
 
 gsap.registerPlugin(SplitText);
 
-export function Header({ isHomePage } : { isHomePage?: boolean }) {
+export function Header({ isHomePage, title } : { isHomePage?: boolean, title?: string }) {
 
   useGSAP(() => {
 
@@ -43,7 +43,7 @@ export function Header({ isHomePage } : { isHomePage?: boolean }) {
         )}
       </div>
       
-      <h1 id="title" className="text-2xl sm:text-3xl text-center font-bold mb-1">TeaBee</h1>
+      <h1 id="title" className="text-2xl sm:text-3xl text-center font-bold mb-1">{title ? title : "TeaBee"}</h1>
       <AuthButton />
 
     </header>
