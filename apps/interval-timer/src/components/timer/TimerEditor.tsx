@@ -1,17 +1,18 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import type { Interval } from "./timer.types";
+import type { Interval, IntervalTimer } from "./timer.types";
 import { useTimer } from "@/hooks/timer/useTimer";
 import { useTimerActions } from "@/hooks/timer/useTimerActions";
 import { normalizeDuration, secondsToHoursMinutesSeconds, formIntervalToSeconds } from "@/hooks/timer/useIntervalConversions";
 import type { FormInterval } from "@/hooks/timer/useIntervalConversions";
+import type { TimerState } from "@/hooks/timer/useTimer";
 
 const TimerEditor = () => {
 
     const { id } = useParams<{ id: string }>();
     const isNew = id === "new" || id === undefined;
 
-    const { timer, loading, error: useTimerError } = useTimer(isNew ? undefined : id);
+    const [refreshKey, setRefreshKey] = useState(0);
     const [name, setName] = useState("");
     const [intervals, setIntervals] = useState<FormInterval[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -23,13 +24,15 @@ const TimerEditor = () => {
     });
 
     const { addTimer, updateTimer, deleteTimer } = useTimerActions();
-
     const navigate = useNavigate();
+    const { timer, loading, error: useTimerError } = useTimer(isNew ? undefined : id, refreshKey);
 
     const isAddDisabled = 
         currentInterval.h === 0 &&
         currentInterval.m === 0 &&
         currentInterval.s === 0;
+
+    const storageKey = `timer-state:${id}`;
 
     // Convert the fetched intervals from duration in seconds to hours, minutes, and seconds to work with
     // in the form.
@@ -99,6 +102,29 @@ const TimerEditor = () => {
         next?.focus();
     };
 
+    const writeToStorage = (nextIntervals: FormInterval[]) => {
+        if (!id) return;
+
+        const intervalsState = nextIntervals.map((interval: FormInterval): Interval => (
+            {
+                duration: formIntervalToSeconds(interval),
+                isRest: interval.isRest
+            }
+        ));
+
+        const timerState: IntervalTimer = {
+            id,
+            name,
+            intervals: intervalsState
+        };
+
+        const state: TimerState = {
+            timer: timerState,
+            timestamp: Date.now()
+        };
+
+        localStorage.setItem(storageKey, JSON.stringify(state));
+    };
 
     const handleAddInterval = () => {
 
@@ -113,12 +139,19 @@ const TimerEditor = () => {
             isRest: currentInterval.isRest,
         };
 
-        setIntervals((prev) => [...prev, normalized]);
+        const nextIntervals = [...intervals, normalized];
+
+        setIntervals(nextIntervals);
+        writeToStorage(nextIntervals);
+
         setCurrentInterval({ h: 0, m: 0, s: 0, isRest: false });
     };
 
     const handleDeleteInterval = (index: number) => {
-        setIntervals((prev) => prev.filter((_, i) => i !== index));
+        const nextIntervals = intervals.filter((_, i) => i !== index);
+
+        writeToStorage(nextIntervals);
+        setIntervals(nextIntervals);
     };
 
     const handleSubmit = async (
@@ -143,6 +176,7 @@ const TimerEditor = () => {
             } else {
                 await updateTimer(id, payload)
             }
+            localStorage.removeItem(storageKey);
             navigate("/timer/menu");
         } catch (e) {
             console.error(e);
@@ -150,8 +184,14 @@ const TimerEditor = () => {
         }
     };
 
+    const handleClearDraft = () => {
+        localStorage.removeItem(storageKey);
+        setRefreshKey(prev => prev + 1);
+    };
+
     const handleDeleteTimer = async() => {
         if (window.confirm("Are you sure you want to delete this timer?") && id != undefined) {
+            localStorage.removeItem(storageKey);
             await deleteTimer(id);
             navigate("/timer/menu");
         }
@@ -267,6 +307,15 @@ const TimerEditor = () => {
                     >
                         <span className="text-text-light">Add Interval</span>
                     </button>
+
+                    <button
+                        onClick={handleClearDraft}
+                        className="bg-red-900 cursor-pointer disabled:bg-gray-700 disabled:cursor-not-allowed rounded-md p-1 btn-glow font-bold px-4"
+                        type="button"
+                        disabled={localStorage.getItem(storageKey) === null}
+                    >
+                        Clear Draft
+                    </button>
                 </div>
                 
                 <button 
@@ -281,9 +330,9 @@ const TimerEditor = () => {
                 <div className="flex flex-col bg-brand-primary text-text-bright rounded-md">
                     <p className="text-2xl sm:text-3xl text-center bg-surface-alt rounded-t-md">Current Intervals</p>
                     {intervals.length === 0 && 
-                        <p className="text-center text-sm">None</p>
+                        <p className="text-center mt-2">None</p>
                     }
-                    <ul className="flex flex-col items-left gap-2 p-2 h-[200px] overflow-y-auto custom-scrollbar">
+                    <ul className="flex flex-col items-left gap-2 p-2 mt-2 h-[200px] overflow-y-auto custom-scrollbar">
                         {intervals.map((interval, index) => (
                             <li id={`${index}`} key={`${index}`} className="grid grid-cols-4 place-items-center">
                                 <button
@@ -294,7 +343,7 @@ const TimerEditor = () => {
                                     X
                                 </button>
 
-                                <p className="col-span-2">{`${index+1}) ${interval.h.toString().padStart(2, "0")}:${interval.m.toString().padStart(2, "0")}:${interval.s.toString().padStart(2, "0")}`}</p>
+                                <p className="col-span-2 text-left">{`${index+1}) ${interval.h.toString().padStart(2, "0")}:${interval.m.toString().padStart(2, "0")}:${interval.s.toString().padStart(2, "0")}`}</p>
                                 {interval.isRest === true && <p className="bg-white/10 rounded-md px-2">Rest</p>}
                             </li>
                         ))}
@@ -302,7 +351,7 @@ const TimerEditor = () => {
                 </div>
                 
                 <button
-                    className="bg-red-900 py-2 rounded-md text-text-bright text-2xl sm:text-3xl cursor-pointer disabled:cursor-not-allowed w-full flex flex-col gap-2 font-bold btn-glow"
+                    className="bg-red-900 disabled:bg-gray-700 py-2 rounded-md text-text-bright text-2xl sm:text-3xl cursor-pointer disabled:cursor-not-allowed w-full flex flex-col gap-2 font-bold btn-glow"
                     onClick={handleDeleteTimer}
                     type="button"
                     disabled={id === undefined || id === "new"}

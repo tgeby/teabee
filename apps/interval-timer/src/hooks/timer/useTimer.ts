@@ -10,18 +10,49 @@ interface UseTimerResult {
     error: string | null;
 };
 
-export const useTimer = (timerId: string | null | undefined): UseTimerResult => {
+export interface TimerState {
+    timer: IntervalTimer;
+    timestamp: number;
+}
+
+export const useTimer = (timerId: string | null | undefined, refreshKey?: number): UseTimerResult => {
     const { user, loading: authLoading } = useAuth();
     const [timer, setTimer] = useState<IntervalTimer | null>(null);
     const [timerLoading, setTimerLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (timerId === undefined) {
+        if (!timerId) {
             setTimer(null);
             setTimerLoading(false);
             setError(null);
             return;
+        }
+
+        // Check localStorage
+        // NOTE:
+        // This is only intended to prevent an accidental page reload or navigation in the TimerEditor
+        // from wiping the user's changes.
+        const storageKey = `timer-state:${timerId}`;
+        const timerState = localStorage.getItem(storageKey);
+        if (timerState) {
+            try {
+                const parsed: TimerState = JSON.parse(timerState);
+                const timestamp: number = parsed.timestamp;    
+                if (parsed?.timer && parsed.timer.id === timerId && typeof timestamp === "number") {
+                    const age = Date.now() - timestamp;
+                    if (age <= 60 * 60 * 1000) { // Restore draft less than an hour old
+                        setTimer(parsed.timer);
+                        setTimerLoading(false);
+                        setError(null);
+                        return;
+                    } else {    // Remove expired draft
+                        localStorage.removeItem(storageKey);
+                    }
+                }
+            } catch (error: any) {
+                console.log("Failed to parse stored timer state: ", error);
+            }
         }
 
         if (authLoading) {
@@ -60,7 +91,7 @@ export const useTimer = (timerId: string | null | undefined): UseTimerResult => 
         );
 
         return () => unsubscribe();
-    }, [user, authLoading, timerId]); // Re-run effect if user or timerId changes
+    }, [user, authLoading, timerId, refreshKey]); // Re-run effect if user or timerId changes
 
     return { timer, loading: timerLoading || authLoading, error };
 };
