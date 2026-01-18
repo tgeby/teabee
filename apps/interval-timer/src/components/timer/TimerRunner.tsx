@@ -146,46 +146,43 @@ const TimerRunner = () => {
 
     return (
         <div className="py-8 flex flex-col items-center w-full">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-text-bright line-clamp-2 whitespace-normal max-w-1/2 text-center text-ellipsis">{timer.name}</h2>
-            <div className="flex flex-col sm:px-24 items-center gap-4 font-medium text-text-bright p-6 rounded-lg text-lg sm:text-xl">
+            <h2 className="text-2xl sm:text-3xl font-bold text-text-bright line-clamp-2 whitespace-normal max-w-1/2 text-center text-ellipsis">{timer.name}</h2>
+            <div className="flex flex-col sm:px-24 items-center gap-4 font-medium text-text-bright p-4 rounded-lg text-lg sm:text-xl">
                 {status === "idle" && (
                     <button 
                         onClick={handleStart}
-                        className="text-xl sm:text-3xl bg-surface-alt p-4 rounded-lg cursor-pointer hover:bg-surface-alt/80 transition btn-glow"
+                        className="text-xl sm:text-2xl bg-surface-alt p-4 rounded-lg cursor-pointer hover:bg-surface-alt/80 transition btn-glow"
                     >
                         Start
                     </button>
                 )}
 
                 {status !== "idle" && (
-                    <div className="flex flex-col lg:flex-row gap-2 sm:items-center justify-center text-center text-2xl sm:text-3xl ">
-                        <button 
-                            onClick={status === "paused" ? handlePlay : handlePause}
-                            className="text-xl sm:text-3xl bg-surface-alt p-4 rounded-lg cursor-pointer hover:bg-surface-alt/80 transition btn-glow mx-8"
-                        >
-                            {status === "paused" ? "Start" : "Stop"}
-                        </button>
-
-                        <div className="flex flex-col">
-                        {/* countdown display */}
+                    <div className="flex flex-col sm:items-center justify-center text-center text-xl sm:text-2xl ">
                         <p>
                             {timeRemainingMilliseconds !== null ? `Time Remaining: ${String(remainingHours).padStart(2, "0")}:${String(remainingMinutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}` : "Not started"}
                         </p>
+
+                        <div className="flex py-4">
+                            <button 
+                                onClick={status === "paused" ? handlePlay : handlePause}
+                                className="bg-surface-alt p-4 rounded-lg cursor-pointer hover:bg-surface-alt/80 transition btn-glow mx-4"
+                            >
+                                {status === "paused" ? "Start" : "Stop"}
+                            </button>
+                            <button 
+                                onClick={handleReset}
+                                className="bg-red-800 p-4 rounded-lg cursor-pointer hover:bg-red-900 transition btn-glow mx-4"
+                            >
+                                Reset
+                            </button>
+                        </div>
                         <p>
                             Current Interval: {timerIndex + 1} / {timer.intervals.length}
                         </p>
-                        </div>
-
-                        <button 
-                            onClick={handleReset}
-                            className="text-xl sm:text-3xl bg-red-800 p-4 rounded-lg cursor-pointer hover:bg-red-900 transition btn-glow mx-8"
-                        >
-                            Reset
-                        </button>
-                    
                     </div>
                 )}
-                <p className="text-sm text-left max-w-[400px] pt-12">Notes: <br />-This timer only runs while this browser window is open and visible. <br />-If the window is minimized, the timer may stall at the end of the current interval. <br />-You can place other windows in front of it without affecting the timer.<br />-In the current verison, refreshing your page will wipe the timer state.</p>
+                <p className="text-sm text-left max-w-[400px] pt-4">Notes: <br />-This timer only runs while this browser window is open and visible. <br />-If the window is minimized, the timer may stall at the end of the current interval. <br />-You can place other windows in front of it without affecting the timer.<br />-In the current verison, refreshing your page will wipe the timer state.</p>
             </div>
         </div>
     );
