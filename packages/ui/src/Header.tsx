@@ -15,10 +15,9 @@ export function Header({ isHomePage, title } : { isHomePage?: boolean, title?: s
     const titleChars = SplitText.create("#title", { type: "chars" });
 
     gsap.from(titleChars.chars, {
-      opacity: 0,
-      y: 5,
-      stagger: 0.09,
-      duration: 0.1,
+      y: 3,
+      stagger: 0.05,
+      duration: 0.03,
       ease: "power2.out",
     });
 
