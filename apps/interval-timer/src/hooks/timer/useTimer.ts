@@ -40,15 +40,10 @@ export const useTimer = (timerId: string | null | undefined, refreshKey?: number
                 const parsed: TimerState = JSON.parse(timerState);
                 const timestamp: number = parsed.timestamp;    
                 if (parsed?.timer && parsed.timer.id === timerId && typeof timestamp === "number") {
-                    const age = Date.now() - timestamp;
-                    if (age <= 60 * 60 * 1000) { // Restore draft less than an hour old
-                        setTimer(parsed.timer);
-                        setTimerLoading(false);
-                        setError(null);
-                        return;
-                    } else {    // Remove expired draft
-                        localStorage.removeItem(storageKey);
-                    }
+                    setTimer(parsed.timer);
+                    setTimerLoading(false);
+                    setError(null);
+                    return;
                 }
             } catch (error: any) {
                 console.log("Failed to parse stored timer state: ", error);
