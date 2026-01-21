@@ -10,7 +10,7 @@ export default function Home() {
       <main className="w-full text-text-bright text:lg sm:text-2xl flex flex-col justify-center">
         <div id="about" className="w-full min-h-[512px] h-[90dvh] bg-gray-400 flex flex-col sm:flex-row items-center px-10">
           <div className="relative size-64 sm:size-80 lg:size-96 shrink-0">
-            <Image src="/TeaBee.svg" alt="Bee Holding Mug of Tea" fill />
+            <Image src="/TeaBee.svg" alt="Bee Holding Mug of Tea" fill loading="eager" />
           </div>
           <div className="text-black font-medium text-lg sm:text-2xl flex flex-col gap-8">
               <h1 className="text-3xl sm:text-8xl font-bold">About TeaBee</h1>
