@@ -9,13 +9,20 @@ const TimerRunner = () => {
     const { id } = useParams<{ id: string }>();
     const { timer, loading, error } = useTimer(id);
     const [status, setStatus] = useState<TimerStatus>("idle");
+    const statusRef = useRef<TimerStatus>(status);
     const [timerIndex, setTimerIndex] = useState(0);
     const timerIndexRef = useRef(0);
     const currentDurationRefMilliseconds = useRef<number | null>(null);
     const startTimeRefMilliseconds = useRef<number | null>(null);
     const [timeRemainingMilliseconds, setTimeRemainingMilliseconds] = useState<number | null>(null);
-    const intervalRef = useRef<number | null>(null);
+    const tickIntervalRef = useRef<number | null>(null);
+    const persistIntervalRef = useRef<number | null>(null);
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const [showInteractionNeeded, setShowInteractionNeeded] = useState(false);
+
+    useEffect(() => {
+        statusRef.current = status;
+    }, [status]);
 
     useEffect(() => {
         if (status !== "running") return;
@@ -24,23 +31,25 @@ const TimerRunner = () => {
         const tick = () => {
             if (startTimeRefMilliseconds.current === null || currentDurationRefMilliseconds.current === null) return;
 
-            const ellapsedMs = Date.now() - startTimeRefMilliseconds.current;
-            const remainingMs = Math.max(0, currentDurationRefMilliseconds.current - ellapsedMs);            
+            const elapsedMs = Date.now() - startTimeRefMilliseconds.current;
+            const remainingMs = Math.max(0, currentDurationRefMilliseconds.current - elapsedMs);            
             setTimeRemainingMilliseconds(remainingMs);
 
-            if (remainingMs === 0) {
+            if (remainingMs === 0 && startTimeRefMilliseconds.current !== null) {
+                startTimeRefMilliseconds.current = null;
                 playAudio();
                 advanceInterval();
             }
         }
 
         tick();
-        intervalRef.current = window.setInterval(tick, 200);
+        if (tickIntervalRef.current) clearInterval(tickIntervalRef.current);
+        tickIntervalRef.current = window.setInterval(tick, 200);
 
         return () => {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
+            if (tickIntervalRef.current) {
+                clearInterval(tickIntervalRef.current);
+                tickIntervalRef.current = null;
             }
         };
     }, [status, timer]);
@@ -65,9 +74,6 @@ const TimerRunner = () => {
         setTimeRemainingMilliseconds(nextDurationMs);
     };
 
-    if (loading) return <p className="loading">Loading timer...</p>;
-    if (error || !timer) return <p className="error">Timer not found</p>;
-
     const playAudio = async () => {
         const audio = audioRef.current;
         if (!audio) return;
@@ -78,7 +84,7 @@ const TimerRunner = () => {
     };
 
     const initAndUnlockAudio = async () => {
-        
+        setShowInteractionNeeded(false);
         if (!audioRef.current) {
             audioRef.current = new Audio("/notificationSoundTrimmed.m4a");
             audioRef.current.load();
@@ -91,6 +97,104 @@ const TimerRunner = () => {
             audio.currentTime = 0;
         }).catch(e => console.error("Audio unlock failed:", e));
     };
+    
+    useEffect(() => {
+        if (id) {
+            readFromLocalStorage();
+        }
+    }, [id]);
+
+    useEffect(() => {
+        if (status === "idle")
+            return;
+        if (status === "paused") {
+            if (persistIntervalRef.current) {
+                clearInterval(persistIntervalRef.current);
+                persistIntervalRef.current = null;
+            }
+            writeToLocalStorage();
+            return;
+        }
+
+        if (persistIntervalRef.current) clearInterval(persistIntervalRef.current);
+        persistIntervalRef.current = window.setInterval(writeToLocalStorage, 2000);
+        return () => {
+            if (persistIntervalRef.current) {
+                clearInterval(persistIntervalRef.current);
+                persistIntervalRef.current = null;
+            }
+        }
+    }, [status]);
+
+    if (!id) {
+        return <p className="loading">Loading timer...</p>;
+    }
+
+    const storageKey = `timer-runner-state-${id}`;
+
+    type timerRunnerStateType = {
+        writeTime: number;
+        timerIndex: number;
+        status: TimerStatus;
+        startTime: number | null;
+        currentDuration: number;
+    }
+
+    const writeToLocalStorage = () => {
+        if (currentDurationRefMilliseconds.current === null || !id || statusRef.current === "idle")
+            return;
+        const timerRunnerState: timerRunnerStateType = {
+            writeTime: Date.now(),
+            timerIndex: timerIndexRef.current,
+            status: statusRef.current,
+            startTime: startTimeRefMilliseconds.current,
+            currentDuration: currentDurationRefMilliseconds.current
+        };
+        localStorage.setItem(storageKey, JSON.stringify(timerRunnerState));
+    };
+
+    const readFromLocalStorage = () => {
+        const timerRunnerStateRaw = localStorage.getItem(storageKey);
+        if (!timerRunnerStateRaw || !id)
+            return;
+        try {
+            const timerRunnerStateParsed: timerRunnerStateType = JSON.parse(timerRunnerStateRaw);
+            const writeTime = timerRunnerStateParsed.writeTime;
+            const elapsedTimeMs = Date.now() - writeTime;
+            if (timerRunnerStateParsed.status === "running" && elapsedTimeMs > 60 * 1000) {
+                // Only intended to prevent page reloads from resetting the timer
+                // so 1 minute is more than enough time. 
+                localStorage.removeItem(storageKey);
+                return;
+            }
+            const retrievedIndex = timerRunnerStateParsed.timerIndex;
+            const retrievedStatus = timerRunnerStateParsed.status;
+            const retrievedStartTime = timerRunnerStateParsed.startTime;
+            const retrivedCurrentDuration = timerRunnerStateParsed.currentDuration;
+            if (retrievedStatus !== "idle" && retrivedCurrentDuration != 0) {
+                setTimerIndex(retrievedIndex);
+                timerIndexRef.current = retrievedIndex;
+                setStatus(retrievedStatus);
+                startTimeRefMilliseconds.current = retrievedStartTime;
+                currentDurationRefMilliseconds.current = retrivedCurrentDuration;
+                if (retrievedStartTime) {
+                    const elapsed = Date.now() - retrievedStartTime;
+                    const timeRemaining = Math.max(0, retrivedCurrentDuration - elapsed);
+                    setTimeRemainingMilliseconds(timeRemaining);
+                } else {
+                    setTimeRemainingMilliseconds(retrivedCurrentDuration);
+                }
+                if (retrievedStatus === "running") {
+                    setShowInteractionNeeded(true);
+                }
+            }
+        } catch (error) {
+            console.error("Failed to parse stored timer runner state: ", error);
+        }
+    };
+
+    if (loading) return <p className="loading">Loading timer...</p>;
+    if (error || !timer) return <p className="error">Timer not found</p>;
 
     const handleStart = async () => {
         await initAndUnlockAudio();
@@ -115,16 +219,17 @@ const TimerRunner = () => {
     };
 
     const handlePause = () => {
+        setShowInteractionNeeded(false);
         if (currentDurationRefMilliseconds.current === null || status !== "running" || startTimeRefMilliseconds.current === null) return;
         
-        const ellapsedMs = Date.now() - startTimeRefMilliseconds.current;
-        currentDurationRefMilliseconds.current = Math.max(0, currentDurationRefMilliseconds.current - ellapsedMs); 
+        const elapsedMs = Date.now() - startTimeRefMilliseconds.current;
+        currentDurationRefMilliseconds.current = Math.max(0, currentDurationRefMilliseconds.current - elapsedMs); // Upon pausing, store how much time remains
         startTimeRefMilliseconds.current = null;
         setStatus("paused");
 
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
+        if (tickIntervalRef.current) {
+            clearInterval(tickIntervalRef.current);
+            tickIntervalRef.current = null;
         }
     };
 
@@ -138,6 +243,15 @@ const TimerRunner = () => {
         setStatus("idle");
         currentDurationRefMilliseconds.current = null;
         document.title = title;
+        localStorage.removeItem(storageKey);
+        if (tickIntervalRef.current) {
+            clearInterval(tickIntervalRef.current);
+            tickIntervalRef.current = null;
+        }
+        if (persistIntervalRef.current) {
+            clearInterval(persistIntervalRef.current);
+            persistIntervalRef.current = null;
+        }
     }
 
     const { h: remainingHours, m: remainingMinutes, s: remainingSeconds } = timeRemainingMilliseconds !== null ? msToHoursMinutesSeconds(timeRemainingMilliseconds) : { h: 0, m: 0, s: 0 }; 
@@ -165,6 +279,17 @@ const TimerRunner = () => {
                             {timeRemainingMilliseconds !== null ? `Time Remaining: ${String(remainingHours).padStart(2, "0")}:${String(remainingMinutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}` : "Not started"}
                         </p>
 
+                        {showInteractionNeeded && 
+                        <button
+                            onClick={() => {
+                                initAndUnlockAudio();
+                            }}
+                                className="bg-surface-alt p-4 mt-2 rounded-lg cursor-pointer hover:bg-surface-alt/80 transition btn-glow mx-4"
+                            >
+                                Timer state was restored after a page refresh. Please click this button to activate the notification sound.
+                            </button>
+                        }
+
                         <div className="flex py-4">
                             <button 
                                 onClick={status === "paused" ? handlePlay : handlePause}
@@ -184,7 +309,7 @@ const TimerRunner = () => {
                         </p>
                     </div>
                 )}
-                <p className="text-sm text-left max-w-[400px] pt-4">Notes: <br />-This timer only runs while this browser window is open and visible. <br />-If the window is minimized, the timer may stall at the end of the current interval. <br />-You can place other windows in front of it without affecting the timer.<br />-In the current verison, refreshing your page will wipe the timer state.</p>
+                <p className="text-sm text-left max-w-[400px] pt-4">Notes: <br />-This timer only runs while this browser window is open and visible. <br />-If the window is minimized, the timer may stall at the end of the current interval. <br />-You can place other windows in front of it without affecting the timer.</p>
             </div>
         </div>
     );
