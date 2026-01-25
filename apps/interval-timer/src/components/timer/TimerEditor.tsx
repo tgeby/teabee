@@ -294,7 +294,7 @@ const TimerEditor = () => {
                                     className={`bg-surface-alt rounded-sm w-10 h-8 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:cursor-ns-resize`}
                                     onKeyDown={handleEnterToNext}
                                 />
-                                <div className="w-[2px] h-6 bg-text-bright mx-1 self-center" aria-hidden="true" />
+                                <div className="w-0.5 h-6 bg-text-bright mx-1 self-center" aria-hidden="true" />
                             </label>
 
                             <button 
