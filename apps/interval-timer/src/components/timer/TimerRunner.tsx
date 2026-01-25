@@ -128,6 +128,8 @@ const TimerRunner = () => {
         }
     };
 
+    const title = "Interval Timer";
+
     const handleReset = () => {
         startTimeRefMilliseconds.current = null;
         timerIndexRef.current = 0;
@@ -135,12 +137,12 @@ const TimerRunner = () => {
         setTimeRemainingMilliseconds(null);
         setStatus("idle");
         currentDurationRefMilliseconds.current = null;
+        document.title = title;
     }
 
     const { h: remainingHours, m: remainingMinutes, s: remainingSeconds } = timeRemainingMilliseconds !== null ? msToHoursMinutesSeconds(timeRemainingMilliseconds) : { h: 0, m: 0, s: 0 }; 
     
     if (status != "idle") {
-        const title = "Interval Timer";
         document.title = title + ` ${String(remainingHours).padStart(2, "0")}:${String(remainingMinutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
     }
 
