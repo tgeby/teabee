@@ -338,7 +338,7 @@ const TimerEditor = () => {
                     {intervals.length === 0 && <p className="text-sm font-medium">Add intervals above to submit</p>}
                 </button>
 
-                <div className="flex flex-col bg-brand-primary text-text-bright rounded-md">
+                <div className="flex flex-col bg-brand-primary text-text-bright rounded-md pb-4">
                     <p className="text-2xl sm:text-3xl text-center bg-surface-alt rounded-t-md">Current Intervals</p>
                     {intervals.length === 0 && 
                         <p className="text-center mt-2">None</p>
