@@ -35,7 +35,7 @@ const TimerRunner = () => {
             const remainingMs = Math.max(0, currentDurationRefMilliseconds.current - elapsedMs);            
             setTimeRemainingMilliseconds(remainingMs);
 
-            if (remainingMs === 0 && startTimeRefMilliseconds.current !== null) {
+            if (remainingMs === 0) {
                 startTimeRefMilliseconds.current = null;
                 playAudio();
                 advanceInterval();
@@ -74,7 +74,7 @@ const TimerRunner = () => {
         setTimeRemainingMilliseconds(nextDurationMs);
     };
 
-    const playAudio = async () => {
+    const playAudio = () => {
         const audio = audioRef.current;
         if (!audio) return;
 
@@ -162,7 +162,7 @@ const TimerRunner = () => {
             const writeTime = timerRunnerStateParsed.writeTime;
             const elapsedTimeMs = Date.now() - writeTime;
             if (timerRunnerStateParsed.status === "running" && elapsedTimeMs > 60 * 1000) {
-                // Only intended to prevent page reloads from resetting the timer
+                // Only intended to prevent page reloads from resetting the timer,
                 // so 1 minute is more than enough time. 
                 localStorage.removeItem(storageKey);
                 return;
@@ -170,19 +170,19 @@ const TimerRunner = () => {
             const retrievedIndex = timerRunnerStateParsed.timerIndex;
             const retrievedStatus = timerRunnerStateParsed.status;
             const retrievedStartTime = timerRunnerStateParsed.startTime;
-            const retrivedCurrentDuration = timerRunnerStateParsed.currentDuration;
-            if (retrievedStatus !== "idle" && retrivedCurrentDuration != 0) {
+            const retrievedCurrentDuration = timerRunnerStateParsed.currentDuration;
+            if (retrievedStatus !== "idle" && retrievedCurrentDuration != 0) {
                 setTimerIndex(retrievedIndex);
                 timerIndexRef.current = retrievedIndex;
                 setStatus(retrievedStatus);
                 startTimeRefMilliseconds.current = retrievedStartTime;
-                currentDurationRefMilliseconds.current = retrivedCurrentDuration;
+                currentDurationRefMilliseconds.current = retrievedCurrentDuration;
                 if (retrievedStartTime) {
                     const elapsed = Date.now() - retrievedStartTime;
-                    const timeRemaining = Math.max(0, retrivedCurrentDuration - elapsed);
+                    const timeRemaining = Math.max(0, retrievedCurrentDuration - elapsed);
                     setTimeRemainingMilliseconds(timeRemaining);
                 } else {
-                    setTimeRemainingMilliseconds(retrivedCurrentDuration);
+                    setTimeRemainingMilliseconds(retrievedCurrentDuration);
                 }
                 if (retrievedStatus === "running") {
                     setShowInteractionNeeded(true);
@@ -282,7 +282,7 @@ const TimerRunner = () => {
                         {showInteractionNeeded && 
                         <button
                             onClick={() => {
-                                initAndUnlockAudio();
+                                void initAndUnlockAudio();
                             }}
                                 className="bg-surface-alt p-4 mt-2 rounded-lg cursor-pointer hover:bg-surface-alt/80 transition btn-glow mx-4"
                             >

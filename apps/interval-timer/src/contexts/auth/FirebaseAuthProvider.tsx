@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AuthContext, AuthUser } from "@repo/auth-contract";
 import { onAuthStateChanged, signInWithRedirect, signInWithPopup, GoogleAuthProvider, signOut, getRedirectResult } from "firebase/auth";
 import { auth } from "@/firebase";

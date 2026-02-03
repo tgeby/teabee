@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import type { Interval, IntervalTimer, IntervalTimerDoc } from "./timer.types";
 import { useTimer } from "@/hooks/timer/useTimer";
 import { useTimerActions } from "@/hooks/timer/useTimerActions";

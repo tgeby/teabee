@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AuthContext, AuthUser } from "@repo/auth-contract";
 import { onAuthStateChanged, signInWithRedirect, signInWithPopup, GoogleAuthProvider, signOut, getRedirectResult } from "firebase/auth";
 import { auth } from "lib/firebase";
@@ -11,7 +11,7 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        
+
         getRedirectResult(auth).then((result) => {
             if (result) {
                 console.log('Redirect sign-in successful');
@@ -20,7 +20,7 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
             console.error('Error during redirect sign-in:', error);
         });
 
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {            
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             if (currentUser) {
                 setUser({
                     uid: currentUser.uid,
