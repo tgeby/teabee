@@ -19,10 +19,37 @@ const TimerRunner = () => {
     const persistIntervalRef = useRef<number | null>(null);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [showInteractionNeeded, setShowInteractionNeeded] = useState(false);
+    const [cycles, setCycles] = useState(1);
+    const cyclesRef = useRef(cycles);
+    const [isUnlimited, setIsUnlimited] = useState(false);
+    const isUnlimitedRef = useRef(isUnlimited);
+    const [cycleIndex, setCycleIndex] = useState(0);
+    const cycleIndexRef = useRef(0);
+
+    const title = "Interval Timer";
 
     useEffect(() => {
         statusRef.current = status;
     }, [status]);
+
+    useEffect(() => {
+        cyclesRef.current = cycles;
+    }, [cycles]);
+
+    useEffect(() => {
+        isUnlimitedRef.current = isUnlimited;
+    }, [isUnlimited]);
+
+    const { h: remainingHours, m: remainingMinutes, s: remainingSeconds } = timeRemainingMilliseconds !== null ? msToHoursMinutesSeconds(timeRemainingMilliseconds) : { h: 0, m: 0, s: 0 };
+
+    useEffect(() => {
+
+        if (status !== 'idle' && timeRemainingMilliseconds !== null) {
+            document.title = title + ` ${String(remainingHours).padStart(2, "0")}:${String(remainingMinutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
+        } else {
+            document.title = title;
+        }
+    }, [status, timeRemainingMilliseconds, remainingHours, remainingMinutes, remainingSeconds]);
 
     useEffect(() => {
         if (status !== "running") return;
@@ -55,7 +82,24 @@ const TimerRunner = () => {
     }, [status, timer]);
 
     const advanceInterval = () => {
-        const nextIndex = timerIndexRef.current + 1;
+
+        // I want to either increment the timer by one and process as usual or
+        // if the nextIndex is greater than the number of intervals, then
+        //      if the timer is unlimited, reset the index to 0 and process as usual.
+        //      if the repetitionCount is less than the repetitions, increment the
+        //      repetitionCount, set the next index to 0, and process as usual.
+        if (!timer) {
+            handleReset();
+            return;
+        }
+
+        const repeat = timerIndexRef.current + 1 >= timer.intervals.length && (isUnlimited || cycleIndexRef.current + 1 < cycles);
+        const nextIndex = repeat ? 0 : timerIndexRef.current + 1;
+        if (repeat && !isUnlimitedRef.current) {
+            const nextCycleIndex = cycleIndexRef.current + 1;
+            setCycleIndex(nextCycleIndex);
+            cycleIndexRef.current = nextCycleIndex;
+        }
 
         if (!timer || nextIndex >= timer.intervals.length) {
             handleReset();
@@ -138,6 +182,9 @@ const TimerRunner = () => {
         status: TimerStatus;
         startTime: number | null;
         currentDuration: number;
+        cycles: number;
+        isUnlimited: boolean;
+        cycleIndex: number;
     }
 
     const writeToLocalStorage = () => {
@@ -148,7 +195,10 @@ const TimerRunner = () => {
             timerIndex: timerIndexRef.current,
             status: statusRef.current,
             startTime: startTimeRefMilliseconds.current,
-            currentDuration: currentDurationRefMilliseconds.current
+            currentDuration: currentDurationRefMilliseconds.current,
+            cycles: cyclesRef.current,
+            isUnlimited: isUnlimitedRef.current,
+            cycleIndex: cycleIndexRef.current
         };
         localStorage.setItem(storageKey, JSON.stringify(timerRunnerState));
     };
@@ -171,12 +221,21 @@ const TimerRunner = () => {
             const retrievedStatus = timerRunnerStateParsed.status;
             const retrievedStartTime = timerRunnerStateParsed.startTime;
             const retrievedCurrentDuration = timerRunnerStateParsed.currentDuration;
+            const retrievedCycles = timerRunnerStateParsed.cycles;
+            const retrievedIsUnlimited = timerRunnerStateParsed.isUnlimited;
+            const retrievedCycleIndex = timerRunnerStateParsed.cycleIndex;
             if (retrievedStatus !== "idle" && retrievedCurrentDuration != 0) {
                 setTimerIndex(retrievedIndex);
                 timerIndexRef.current = retrievedIndex;
                 setStatus(retrievedStatus);
                 startTimeRefMilliseconds.current = retrievedStartTime;
                 currentDurationRefMilliseconds.current = retrievedCurrentDuration;
+                cyclesRef.current = retrievedCycles;
+                setCycles(retrievedCycles);
+                isUnlimitedRef.current = retrievedIsUnlimited;
+                setIsUnlimited(retrievedIsUnlimited);
+                cycleIndexRef.current = retrievedCycleIndex;
+                setCycleIndex(retrievedCycleIndex);
                 if (retrievedStartTime) {
                     const elapsed = Date.now() - retrievedStartTime;
                     const timeRemaining = Math.max(0, retrievedCurrentDuration - elapsed);
@@ -200,7 +259,9 @@ const TimerRunner = () => {
         await initAndUnlockAudio();
         if (timer && timer.intervals[0]?.duration) {
             timerIndexRef.current = 0;
+            cycleIndexRef.current = 0;
             setTimerIndex(0);
+            setCycleIndex(0);
             setStatus("running");
             const firstIntervalDurationSeconds = timer.intervals[0].duration;
             const firstIntervalDurationMs = firstIntervalDurationSeconds * 1000;
@@ -233,7 +294,7 @@ const TimerRunner = () => {
         }
     };
 
-    const title = "Interval Timer";
+   // const title = "Interval Timer";
 
     const handleReset = () => {
         startTimeRefMilliseconds.current = null;
@@ -241,6 +302,9 @@ const TimerRunner = () => {
         setTimerIndex(0);
         setTimeRemainingMilliseconds(null);
         setStatus("idle");
+        setCycleIndex(0);
+        cycleIndexRef.current = 0;
+        setIsUnlimited(false);
         currentDurationRefMilliseconds.current = null;
         document.title = title;
         localStorage.removeItem(storageKey);
@@ -254,23 +318,42 @@ const TimerRunner = () => {
         }
     }
 
-    const { h: remainingHours, m: remainingMinutes, s: remainingSeconds } = timeRemainingMilliseconds !== null ? msToHoursMinutesSeconds(timeRemainingMilliseconds) : { h: 0, m: 0, s: 0 }; 
-    
-    if (status != "idle") {
-        document.title = title + ` ${String(remainingHours).padStart(2, "0")}:${String(remainingMinutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
-    }
+    // const { h: remainingHours, m: remainingMinutes, s: remainingSeconds } = timeRemainingMilliseconds !== null ? msToHoursMinutesSeconds(timeRemainingMilliseconds) : { h: 0, m: 0, s: 0 };
+    //
+    // if (status != "idle") {
+    //     document.title = title + ` ${String(remainingHours).padStart(2, "0")}:${String(remainingMinutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
+    // }
 
     return (
         <div className="py-8 flex flex-col items-center w-full">
             <h2 className="text-2xl sm:text-3xl font-bold text-text-bright line-clamp-2 whitespace-normal max-w-1/2 text-center text-ellipsis">{timer.name}</h2>
             <div className="flex flex-col sm:px-24 items-center gap-4 font-medium text-text-bright p-4 rounded-lg text-lg sm:text-xl">
                 {status === "idle" && (
-                    <button 
-                        onClick={handleStart}
-                        className="text-xl sm:text-2xl bg-surface-alt p-4 rounded-lg cursor-pointer hover:bg-surface-alt/80 transition btn-glow"
-                    >
-                        Start
-                    </button>
+                    <div className="flex flex-col bg-brand-primary p-10 items-center gap-4 rounded-lg">
+                        <p>How many cycles?</p>
+                        <input
+                            className="bg-surface-alt rounded-md text-center w-12 disabled:opacity-50"
+                            type="number"
+                            min="1"
+                            value={cycles}
+                            onChange={(e) => setCycles(Math.max(1, Number(e.target.value) || 1))}
+                            disabled={isUnlimited}
+                        />
+                        <label>
+                            Infinite
+                            <input
+                                type="checkbox"
+                                checked={isUnlimited}
+                                onChange={(e) => setIsUnlimited(e.target.checked)}
+                            />
+                        </label>
+                        <button
+                            onClick={handleStart}
+                            className="text-xl sm:text-2xl bg-surface-alt py-4 px-8 w-fit rounded-lg cursor-pointer hover:bg-surface-alt/80 transition btn-glow"
+                        >
+                            Start
+                        </button>
+                    </div>
                 )}
 
                 {status !== "idle" && (
@@ -306,6 +389,9 @@ const TimerRunner = () => {
                         </div>
                         <p>
                             Current Interval: {timerIndex + 1} / {timer.intervals.length}
+                        </p>
+                        <p>
+                            {isUnlimited ? "Infinite Cycles" : `Current Cycle: ${cycleIndex + 1} / ${cycles}`}
                         </p>
                     </div>
                 )}
