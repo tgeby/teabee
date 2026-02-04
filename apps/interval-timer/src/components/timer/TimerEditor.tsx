@@ -338,6 +338,9 @@ const TimerEditor = () => {
                     {intervals.length === 0 && <p className="text-sm font-medium">Add intervals above to submit</p>}
                 </button>
 
+                {/*Hint*/}
+                <p className="text-text-bright text-lg">Hint: Your timer can repeat automatically, so you may only need one work interval and one rest interval.</p>
+
                 <div className="flex flex-col bg-brand-primary text-text-bright rounded-md pb-4">
                     <p className="text-2xl sm:text-3xl text-center bg-surface-alt rounded-t-md">Current Intervals</p>
                     {intervals.length === 0 && 
